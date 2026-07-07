@@ -1,5 +1,5 @@
 /* Zen Mahjong service worker — cache-first so the game works fully offline. */
-const CACHE = 'zen-mahjong-v1';
+const CACHE = 'zen-mahjong-v2';
 const ASSETS = [
   './',
   './index.html',

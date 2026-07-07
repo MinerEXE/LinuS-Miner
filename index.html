@@ -21,7 +21,6 @@
   html,body{height:100%;overflow:hidden}
   body{
     display:flex;flex-direction:column;
-    height:100dvh;
     background:radial-gradient(120% 90% at 50% 20%, var(--felt1) 0%, var(--felt2) 100%);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     color:var(--ink);
@@ -30,54 +29,86 @@
     padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   header{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;
-    padding:8px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 12px;
     background:linear-gradient(180deg,var(--wood1),var(--wood2));
     box-shadow:0 2px 8px rgba(0,0,0,.45);
     flex:0 0 auto;
   }
-  header .title{font-weight:700;font-size:15px;letter-spacing:.5px;white-space:nowrap}
-  header .stats{display:flex;gap:14px;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
-  header .stats b{font-weight:700}
-  @media (max-width:430px){ header .title{display:none} }
+  header .title{font-weight:700;font-size:17px;letter-spacing:.5px;white-space:nowrap;display:none}
+  @media (min-width:560px){ header .title{display:block} }
+  header .stats{
+    display:flex;gap:8px;flex:1;justify-content:space-evenly;align-items:center;
+    font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  header .stats small{font-size:12px;font-weight:400;opacity:.8;display:block;text-align:center;letter-spacing:.5px}
+  header .stats span{text-align:center}
+  #btn-help{
+    flex:0 0 auto;width:44px;height:44px;border-radius:50%;
+    border:2px solid #3d2008;color:var(--ink);font-size:22px;font-weight:700;
+    background:radial-gradient(circle at 35% 30%, #9c6430, #5b3312);
+    box-shadow:0 2px 5px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25);
+    cursor:pointer;
+  }
   #wrap{flex:1 1 0;min-height:0;min-width:0;position:relative}
   #board{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
   nav{
     flex:0 0 auto;
-    display:flex;justify-content:center;align-items:center;gap:14px;
-    padding:8px 10px 12px;
+    display:flex;justify-content:center;align-items:center;gap:12px;
+    padding:10px 8px 14px;
     background:linear-gradient(180deg,var(--wood1),var(--wood2));
     box-shadow:0 -2px 8px rgba(0,0,0,.45);
   }
   nav button{
-    width:56px;height:56px;border-radius:50%;
+    width:64px;height:64px;border-radius:50%;
     border:2px solid #3d2008;
     background:radial-gradient(circle at 35% 30%, #9c6430, #5b3312);
-    color:var(--ink);font-size:22px;line-height:1;
+    color:var(--ink);font-size:26px;line-height:1;
     box-shadow:0 3px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25);
-    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   }
-  nav button small{font-size:9px;letter-spacing:.4px;opacity:.85}
+  nav button small{font-size:10px;font-weight:700;letter-spacing:.4px;opacity:.9}
   nav button:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(0,0,0,.5)}
   nav button:disabled{opacity:.4}
+  #toast{
+    position:fixed;top:16%;left:50%;transform:translateX(-50%);
+    background:rgba(15,15,15,.88);color:#fff;
+    padding:14px 22px;border-radius:16px;
+    font-size:18px;line-height:1.45;text-align:center;max-width:86%;
+    opacity:0;transition:opacity .35s;pointer-events:none;z-index:30;
+  }
   #overlay{
     position:fixed;inset:0;display:none;align-items:center;justify-content:center;
-    background:rgba(4,20,14,.72);backdrop-filter:blur(3px);z-index:10;
+    background:rgba(4,20,14,.72);backdrop-filter:blur(3px);z-index:10;padding:16px;
   }
   #overlay.show{display:flex}
   #overlay .card{
     background:linear-gradient(180deg,#f7efdb,#e8dcc0);
-    color:#3a2a12;border-radius:18px;padding:26px 30px;max-width:320px;width:88%;
+    color:#3a2a12;border-radius:20px;padding:26px 24px;max-width:400px;width:100%;
+    max-height:92%;overflow-y:auto;
     text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6);
     border:3px solid #b98a4e;
   }
-  #overlay h2{font-size:24px;margin-bottom:8px}
-  #overlay p{font-size:14px;line-height:1.5;margin-bottom:16px}
-  #overlay .btns{display:flex;flex-direction:column;gap:8px}
+  #overlay h2{font-size:26px;margin-bottom:12px}
+  #overlay .body{font-size:17px;line-height:1.55;margin-bottom:18px;text-align:left}
+  #overlay .body p{margin-bottom:12px}
+  #overlay .body .center{text-align:center}
+  #overlay .btns{display:flex;flex-direction:column;gap:10px}
   #overlay button{
-    padding:11px 16px;border-radius:12px;border:2px solid #3d2008;
+    padding:16px;border-radius:14px;border:2px solid #3d2008;
     background:linear-gradient(180deg,#8a5626,#5b3312);color:var(--ink);
-    font-size:15px;font-weight:600;cursor:pointer;
+    font-size:18px;font-weight:700;cursor:pointer;line-height:1.3;
+  }
+  #overlay button small{display:block;font-size:13px;font-weight:400;opacity:.85;margin-top:2px}
+  #overlay button.quiet{background:linear-gradient(180deg,#a89b7e,#877a5e);border-color:#5e5340;color:#241c0c}
+  .demo-tiles{display:flex;justify-content:center;gap:14px;margin:10px 0 4px}
+  .demo-tile{
+    width:58px;height:76px;border-radius:9px;
+    background:linear-gradient(180deg,#fdf8ea,#efe3c3);
+    border:1px solid #8a6a34;box-shadow:2px 3px 0 #b99b62;
+    display:flex;align-items:center;justify-content:center;
+    font-size:34px;font-weight:700;color:#b02418;
+    font-family:"Noto Sans CJK SC","Noto Sans SC","PingFang SC","Microsoft YaHei",serif;
   }
   #autotest-result{position:fixed;left:-9999px;top:0}
 </style>
@@ -86,23 +117,24 @@
 <header>
   <span class="title">🀄 Zen Mahjong</span>
   <span class="stats">
-    <span>⏱ <b id="st-time">0:00</b></span>
-    <span>★ <b id="st-score">0</b></span>
-    <span>▦ <b id="st-tiles">144</b></span>
-    <span>⇆ <b id="st-moves">–</b></span>
+    <span><small>TIME</small><b id="st-time">0:00</b></span>
+    <span><small>TILES</small><b id="st-tiles">–</b></span>
+    <span><small>PAIRS</small><b id="st-moves">–</b></span>
   </span>
+  <button id="btn-help" title="How to play">?</button>
 </header>
 <main id="wrap"><canvas id="board"></canvas></main>
 <nav>
   <button id="btn-new"  title="New game">✦<small>NEW</small></button>
   <button id="btn-undo" title="Undo">↶<small>UNDO</small></button>
   <button id="btn-hint" title="Hint">💡<small>HINT</small></button>
-  <button id="btn-shuf" title="Shuffle">⇄<small>MIX</small></button>
+  <button id="btn-shuf" title="Shuffle">⇄<small>SHUFFLE</small></button>
   <button id="btn-snd"  title="Sound">🔊<small>SOUND</small></button>
 </nav>
+<div id="toast"></div>
 <div id="overlay"><div class="card">
   <h2 id="ov-title"></h2>
-  <p id="ov-text"></p>
+  <div class="body" id="ov-body"></div>
   <div class="btns" id="ov-btns"></div>
 </div></div>
 <div id="autotest-result"></div>
@@ -125,42 +157,74 @@ if(!CanvasRenderingContext2D.prototype.roundRect){
   };
 }
 
-/* ---------- tile kinds (144 tiles) ---------- */
+/* ---------- tile kinds ---------- */
 const CN_NUM = ['','一','二','三','四','五','六','七','八','九'];
-function makeKinds(){
+function kindOf(code){
+  const suit = code[0], v = code.slice(1);
+  return { suit, v: (suit==='w'||suit==='g') ? v : +v,
+           match: (suit==='f'||suit==='s') ? suit : code };
+}
+function fullSet(){        // the traditional 144-tile set
   const ks = [];
-  const add = (suit,v,match,copies)=>{ for(let c=0;c<copies;c++) ks.push({suit,v,match}); };
-  for(let v=1;v<=9;v++){ add('c',v,'c'+v,4); add('b',v,'b'+v,4); add('d',v,'d'+v,4); }
-  ['E','S','W','N'].forEach(w=>add('w',w,'w'+w,4));
-  ['R','G','H'].forEach(d=>add('g',d,'g'+d,4));       // dragons: Red 中, Green 發, wHite 白
-  for(let v=1;v<=4;v++) add('f',v,'f',1);              // flowers match each other
-  for(let v=1;v<=4;v++) add('s',v,'s',1);              // seasons match each other
+  const add = (code,n)=>{ for(let i=0;i<n;i++) ks.push(kindOf(code)); };
+  for(let v=1;v<=9;v++){ add('c'+v,4); add('b'+v,4); add('d'+v,4); }
+  ['wE','wS','wW','wN'].forEach(c=>add(c,4));
+  ['gR','gG','gH'].forEach(c=>add(c,4));
+  for(let v=1;v<=4;v++){ add('f'+v,1); add('s'+v,1); }
   return ks;
 }
+const setOf = codes => codes.flatMap(c=>[0,0,0,0].map(()=>kindOf(c)));
 
-/* ---------- classic "turtle" layout, coords in half-tile units ---------- */
-function makePositions(){
-  const P = [];
-  const spans0 = [[0,2,24],[2,6,20],[4,4,22],[6,2,24],[8,2,24],[10,4,22],[12,6,20],[14,2,24]];
-  for(const [y,x0,x1] of spans0) for(let x=x0;x<=x1;x+=2) P.push({x,y,z:0});
-  P.push({x:0,y:7,z:0}); P.push({x:26,y:7,z:0}); P.push({x:28,y:7,z:0});
-  for(let y=2;y<=12;y+=2) for(let x=8;x<=18;x+=2) P.push({x,y,z:1});
-  for(let y=4;y<=10;y+=2) for(let x=10;x<=16;x+=2) P.push({x,y,z:2});
-  for(let y=6;y<=8;y+=2)  for(let x=12;x<=14;x+=2) P.push({x,y,z:3});
-  P.push({x:13,y:7,z:4});
-  return P; // 144 positions
+/* ---------- board layouts (coords in half-tile units) ---------- */
+function grid(x0,y0,cols,rows,z){
+  const P=[];
+  for(let j=0;j<rows;j++) for(let i=0;i<cols;i++) P.push({x:x0+2*i, y:y0+2*j, z});
+  return P;
 }
-const POSITIONS = makePositions();
+function turtle(){         // the classic 144-tile turtle
+  const P = [];
+  const spans = [[0,2,24],[2,6,20],[4,4,22],[6,2,24],[8,2,24],[10,4,22],[12,6,20],[14,2,24]];
+  for(const [y,x0,x1] of spans) for(let x=x0;x<=x1;x+=2) P.push({x,y,z:0});
+  P.push({x:0,y:7,z:0}); P.push({x:26,y:7,z:0}); P.push({x:28,y:7,z:0});
+  P.push(...grid(8,2,6,6,1), ...grid(10,4,4,4,2), ...grid(12,6,2,2,3), {x:13,y:7,z:4});
+  return P;
+}
+const LAYOUTS = {
+  small: {
+    label:'Small', sub:'48 tiles · nice big tiles',
+    positions: ()=>[...grid(0,0,6,6,0), ...grid(3,2,3,4,1)],
+    kinds: ()=>setOf(['gR','gG','gH','wE','wS','wW','wN','d1','d5','d9','b1','c1'])
+  },
+  medium: {
+    label:'Medium', sub:'84 tiles',
+    positions: ()=>[
+      ...grid(0,0,8,8,0).filter(p=>!((p.x===0||p.x===14)&&(p.y===0||p.y===14))),
+      ...grid(2,4,6,4,1)],
+    kinds: ()=>setOf(['gR','gG','gH','wE','wS','wW','wN',
+                      'd1','d2','d3','d4','d5','d6','d7','d8','d9',
+                      'b1','b3','b5','b7','b9'])
+  },
+  classic: {
+    label:'Large', sub:'144 tiles · the classic turtle',
+    positions: turtle,
+    kinds: fullSet
+  }
+};
 
 /* ---------- state ---------- */
+let layoutKey = 'small';
+let positions = [];      // current layout's positions
 let tiles = [];          // {x,y,z,kind,removed}
 let selected = null;
+let partnerSet = new Set();   // free tiles matching the selected one
 let undoStack = [];
 let hintPair = null, hintIdx = 0;
-let score = 0, seconds = 0, timerId = null, playing = false;
+let seconds = 0, timerId = null, playing = false;
 let anims = [];          // fade-out animations
-let solutionOrder = [];  // [{a:posIdx,b:posIdx}] — order the deal was built in (a valid solution)
+let flash = [];          // {t,until} red flashes for invalid taps
+let solutionOrder = [];  // pair order the deal was built in (a valid solution)
 let soundOn = localStorage.getItem('zm-sound') !== 'off';
+let lastBlockedToast = -Infinity;
 
 const $ = id => document.getElementById(id);
 const canvas = $('board'), ctx = canvas.getContext('2d');
@@ -179,7 +243,6 @@ function makePairs(kinds){
   return shuffleArr(pairs);
 }
 
-/* free-position check on an occupancy array over an arbitrary position list */
 function posFree(i, pos, occ){
   const p = pos[i];
   let left=false, right=false;
@@ -194,8 +257,7 @@ function posFree(i, pos, occ){
   return !(left && right);
 }
 
-/* Build a guaranteed-solvable assignment of `kinds` onto `pos`
-   by playing the game in reverse. Returns {assign, order} or null. */
+/* Build a guaranteed-solvable assignment by playing the game in reverse. */
 function solvableDeal(pos, kinds){
   for(let attempt=0; attempt<300; attempt++){
     const pairs = makePairs(kinds);
@@ -218,16 +280,24 @@ function solvableDeal(pos, kinds){
 }
 
 /* ---------- game actions ---------- */
-function newGame(){
-  const deal = solvableDeal(POSITIONS, makeKinds());
-  const assign = deal ? deal.assign : shuffleArr(makeKinds()); // deal never fails in practice
+function newGame(key){
+  layoutKey = key || layoutKey;
+  localStorage.setItem('zm-layout', layoutKey);
+  const L = LAYOUTS[layoutKey];
+  positions = L.positions();
+  const deal = solvableDeal(positions, L.kinds());
+  const assign = deal ? deal.assign : shuffleArr(L.kinds());
   solutionOrder = deal ? deal.order : [];
-  tiles = POSITIONS.map((p,i)=>({x:p.x,y:p.y,z:p.z,kind:assign[i],removed:false}));
-  selected=null; undoStack=[]; hintPair=null; hintIdx=0; anims=[];
-  score=0; seconds=0; playing=true;
+  tiles = positions.map((p,i)=>({x:p.x,y:p.y,z:p.z,kind:assign[i],removed:false}));
+  selected=null; partnerSet=new Set(); undoStack=[]; hintPair=null; hintIdx=0; anims=[]; flash=[];
+  seconds=0; playing=true;
   clearInterval(timerId);
-  timerId = setInterval(()=>{ if(playing){ seconds++; updateHud(); } },1000);
-  hideOverlay(); updateHud();
+  timerId = setInterval(()=>{
+    if(playing && !document.hidden && !$('overlay').classList.contains('show')){
+      seconds++; $('st-time').textContent = fmtTime(seconds);
+    }
+  },1000);
+  hideOverlay(); computeMetrics(); updateHud();
 }
 
 function isFree(t){
@@ -255,12 +325,16 @@ function matchingPairs(){
 
 function tilesLeft(){ return tiles.reduce((n,t)=>n+!t.removed,0); }
 
+function select(t){
+  selected = t;
+  partnerSet = t ? new Set(freeTiles().filter(o=>o!==t && o.kind.match===t.kind.match)) : new Set();
+}
+
 function removePair(a,b){
   a.removed=b.removed=true;
   undoStack.push([a,b]);
   anims.push({t:a,start:performance.now()},{t:b,start:performance.now()});
-  score += 100;
-  selected=null; hintPair=null;
+  select(null); hintPair=null;
   beep(660,.08); setTimeout(()=>beep(880,.08),70);
   afterMove();
 }
@@ -270,18 +344,25 @@ function afterMove(){
   const left = tilesLeft();
   if(left===0){
     playing=false; clearInterval(timerId);
-    const best = +(localStorage.getItem('zm-best')||0);
-    if(score>best) localStorage.setItem('zm-best',score);
-    showOverlay('🎉 You won!',
-      `Cleared in ${fmtTime(seconds)} — score ${score}.` + (score>best?' New best!':` Best: ${Math.max(best,score)}.`),
-      [['Play again',newGame]]);
+    const bkey = 'zm-best-'+layoutKey;
+    const best = +(localStorage.getItem(bkey)||0);
+    const isBest = !best || seconds<best;
+    if(isBest) localStorage.setItem(bkey, seconds);
+    setTimeout(()=>showOverlay('🎉 You won!',
+      `<p class="center">You cleared the whole board in <b>${fmtTime(seconds)}</b>!</p>`+
+      `<p class="center">${isBest?'That is your best time! 🏆':'Your best: '+fmtTime(best)}</p>`,
+      [['Play again',()=>newGame()],['Choose board size',showMenu]]), 500);
     beep(523,.12); setTimeout(()=>beep(659,.12),120); setTimeout(()=>beep(784,.2),240);
   } else if(matchingPairs().length===0){
-    showOverlay('No moves left',
-      `${left} tiles remain but nothing matches. Shuffle the remaining tiles or undo.`,
-      [['Shuffle ⇄',()=>{hideOverlay();doShuffle();}],
-       ['Undo ↶',()=>{hideOverlay();doUndo();}],
-       ['New game',newGame]]);
+    setTimeout(()=>{
+      if(playing && tilesLeft()>0 && matchingPairs().length===0)
+        showOverlay('No more pairs',
+          `<p class="center">${tilesLeft()} tiles are left, but none of the open ones match.</p>
+           <p class="center">Don't worry — just mix the tiles and keep going!</p>`,
+          [['⇄ Mix the tiles',()=>{hideOverlay();doShuffle();}],
+           ['↶ Take back last move',()=>{hideOverlay();doUndo();}],
+           ['Start over',()=>newGame()]]);
+    }, 450);
   }
 }
 
@@ -289,55 +370,102 @@ function doUndo(){
   const last = undoStack.pop();
   if(!last) return;
   last[0].removed=last[1].removed=false;
-  score = Math.max(0, score-100);
-  selected=null; hintPair=null;
+  select(null); hintPair=null;
   hideOverlay(); updateHud(); beep(330,.06);
 }
 
 function doShuffle(){
   const remaining = tiles.filter(t=>!t.removed);
-  if(remaining.length<4) return;
-  const pos = remaining.map(t=>({x:t.x,y:t.y,z:t.z}));
-  const deal = solvableDeal(pos, remaining.map(t=>t.kind));
-  if(deal){
-    remaining.forEach((t,i)=>t.kind=deal.assign[i]);
-  } else {
-    const ks = shuffleArr(remaining.map(t=>t.kind));   // structural dead-end fallback
-    remaining.forEach((t,i)=>t.kind=ks[i]);
+  if(remaining.length===0) return;
+  if(remaining.length>=4){
+    const pos = remaining.map(t=>({x:t.x,y:t.y,z:t.z}));
+    const deal = solvableDeal(pos, remaining.map(t=>t.kind));
+    if(deal){
+      remaining.forEach((t,i)=>t.kind=deal.assign[i]);
+    } else {
+      const ks = shuffleArr(remaining.map(t=>t.kind)); // structural dead-end fallback
+      remaining.forEach((t,i)=>t.kind=ks[i]);
+    }
+    undoStack=[];
   }
-  score = Math.max(0, score-200);
-  selected=null; hintPair=null; undoStack=[];
-  updateHud(); beep(440,.1);
-  if(matchingPairs().length===0)
-    showOverlay('Still stuck','The remaining tiles are stacked so no shuffle can help. Start a new game?',[['New game',newGame]]);
+  select(null); hintPair=null;
+  updateHud();
+  if(matchingPairs().length===0){
+    const btns = [];
+    if(undoStack.length) btns.push(['↶ Take back moves',()=>{hideOverlay();doUndo();}]);
+    btns.push(['Start a new game',()=>newGame()]);
+    showOverlay('Still stuck',
+      '<p class="center">The last tiles are stacked on top of each other, so no mix can free them. It happens to everyone!</p>', btns);
+  } else if(remaining.length<4){
+    toast('Almost there — the last tiles already match!');
+  } else {
+    beep(440,.1);
+    toast('Tiles mixed — new pairs are ready!');
+  }
 }
 
 function doHint(){
   const pairs = matchingPairs();
   if(!pairs.length) return;
   hintPair = pairs[hintIdx++ % pairs.length];
-  score = Math.max(0, score-50);
-  updateHud(); beep(550,.06);
+  select(null);
+  beep(550,.06);
 }
 
-/* ---------- HUD / overlay ---------- */
+/* ---------- HUD / overlay / toast ---------- */
 const fmtTime = s => `${s/60|0}:${String(s%60).padStart(2,'0')}`;
 function updateHud(){
   $('st-time').textContent = fmtTime(seconds);
-  $('st-score').textContent = score;
   $('st-tiles').textContent = tilesLeft();
   $('st-moves').textContent = matchingPairs().length;
   $('btn-undo').disabled = undoStack.length===0;
 }
-function showOverlay(title,text,btns){
-  $('ov-title').textContent=title; $('ov-text').textContent=text;
+function showOverlay(title, html, btns){
+  $('ov-title').textContent=title; $('ov-body').innerHTML=html;
   const box=$('ov-btns'); box.innerHTML='';
-  for(const [label,fn] of btns){
-    const b=document.createElement('button'); b.textContent=label; b.onclick=fn; box.appendChild(b);
+  for(const [label,fn,cls] of btns){
+    const b=document.createElement('button');
+    b.innerHTML=label; if(cls) b.className=cls;
+    b.onclick=fn; box.appendChild(b);
   }
+  // ghost-click shield: the tap that opened this overlay must not press a button
+  const card = $('overlay').firstElementChild;
+  card.style.pointerEvents='none';
+  setTimeout(()=>{ card.style.pointerEvents=''; }, 350);
   $('overlay').classList.add('show');
 }
 function hideOverlay(){ $('overlay').classList.remove('show'); }
+
+let toastTimer=null;
+function toast(msg){
+  const el=$('toast');
+  el.textContent=msg; el.style.opacity=1;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.style.opacity=0, 2800);
+}
+
+/* ---------- menu & tutorial ---------- */
+function showMenu(){
+  const rows = Object.entries(LAYOUTS).map(([key,L])=>
+    [`${L.label}<small>${L.sub}</small>`, ()=>newGame(key)]);
+  const btns = [...rows, ['❓ How to play', ()=>showHowTo(showMenu), 'quiet']];
+  if(tiles.length && tilesLeft()>0 && playing) btns.push(['Keep playing', hideOverlay, 'quiet']);
+  showOverlay('Choose a board', '<p class="center">Smaller boards have bigger tiles — great to start with!</p>', btns);
+}
+function showHowTo(back){
+  showOverlay('How to play',
+    `<div class="demo-tiles"><div class="demo-tile">中</div><div class="demo-tile">中</div></div>
+     <p class="center" style="margin-bottom:16px"><b>Find two tiles with the same picture.</b></p>
+     <p>1️⃣ Tap one tile — it lights up <b style="color:#b8860b">gold</b>, and every tile that matches it starts to glow.</p>
+     <p>2️⃣ Tap the matching tile — both disappear!</p>
+     <p>3️⃣ A tile can only be picked when <b>nothing lies on top of it</b> and it is <b>open on a side</b>. Blocked tiles wiggle red if you tap them.</p>
+     <p>4️⃣ Clear every tile from the board and you win! 🎉</p>
+     <p>Stuck? Tap 💡 <b>HINT</b> to see a pair, ↶ <b>UNDO</b> to take a move back, or ⇄ <b>SHUFFLE</b> to mix the remaining tiles. Take all the time you like — there is no rush.</p>`,
+    [[back?'⬅ Back':"Let's play!", ()=>{
+        localStorage.setItem('zm-seen','1');
+        back ? back() : hideOverlay();
+      }]]);
+}
 
 /* ---------- sound (tiny WebAudio blips, no assets) ---------- */
 let audioCtx=null;
@@ -345,6 +473,7 @@ function beep(freq,dur){
   if(!soundOn) return;
   try{
     audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
     const o=audioCtx.createOscillator(), g=audioCtx.createGain();
     o.type='triangle'; o.frequency.value=freq;
     g.gain.setValueAtTime(.12,audioCtx.currentTime);
@@ -356,34 +485,53 @@ function beep(freq,dur){
 
 /* ---------- rendering ---------- */
 let M = null; // metrics
+function layoutBounds(){
+  let mx=0,my=0,mz=0;
+  for(const p of positions){ mx=Math.max(mx,p.x); my=Math.max(my,p.y); mz=Math.max(mz,p.z); }
+  return {maxX:mx, maxY:my, W:mx+2, H:my+2, Z:mz};
+}
 function computeMetrics(){
   const dpr = Math.min(window.devicePixelRatio||1, 3);
   const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
-  canvas.width = cssW*dpr; canvas.height = cssH*dpr;
+  canvas.width = Math.max(1,cssW*dpr); canvas.height = Math.max(1,cssH*dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  // board: 30 half-units wide (15 tiles), 16 half-units tall (8 tiles), 5 layers
-  const pad = 10, lift = 0.16; // layer lift as fraction of tile width
-  const tw = Math.min((cssW-2*pad)/(15 + 4*lift + .4), (cssH-2*pad)/((8*1.32 + 4*lift*1.32 + .4)) / 1 * (1/1.32) );
-  const th = tw*1.32;
-  const ex = tw*lift, ey = th*lift*0.75;
-  const boardW = 15*tw + 4*ex, boardH = 8*th + 4*ey;
-  M = { tw, th, hw: tw/2, hh: th/2, ex, ey,
-        ox: (cssW-boardW)/2 + 4*ex, oy: (cssH-boardH)/2 + 4*ey, cssW, cssH };
+  const b = layoutBounds();
+  const pad = 10, R = 1.32;
+  // rotate wide boards 90° on tall screens so tiles stay big
+  const transposed = cssH > cssW*1.15 && b.W > b.H*1.15;
+  const Wt = transposed ? b.H : b.W;   // half-units across the screen
+  const Ht = transposed ? b.W : b.H;
+  const A = cssW-2*pad, B = cssH-2*pad;
+  let cx, cy;                          // px per half-unit on screen x / y
+  if(!transposed){ cx = Math.min(A/(Wt+0.28*b.Z), B/((Ht+0.20*b.Z)*R)); cy = cx*R; }
+  else           { cy = Math.min(B/(Ht+0.20*b.Z), A/((Wt+0.28*b.Z)*R)); cx = cy*R; }
+  const sW = 2*cx, sH = 2*cy;          // screen tile size
+  const ex = sW*0.14, ey = sH*0.10;    // 3-D layer lift
+  const boardW = Wt*cx + b.Z*ex, boardH = Ht*cy + b.Z*ey;
+  M = { cx, cy, sW, sH, ex, ey, transposed, maxY: b.maxY,
+        basis: Math.min(sW, sH*1.25),
+        ox: (cssW-boardW)/2 + b.Z*ex, oy: (cssH-boardH)/2 + b.Z*ey, cssW, cssH };
 }
 
-const drawOrder = () => tiles.slice().sort((a,b)=> a.z-b.z || a.y-b.y || a.x-b.x);
-
 function tileScreen(t){
-  return { x: M.ox + t.x*M.hw - t.z*M.ex, y: M.oy + t.y*M.hh - t.z*M.ey };
+  return M.transposed
+    ? { x: M.ox + (M.maxY-t.y)*M.cx - t.z*M.ex, y: M.oy + t.x*M.cy - t.z*M.ey }
+    : { x: M.ox + t.x*M.cx - t.z*M.ex,          y: M.oy + t.y*M.cy - t.z*M.ey };
+}
+
+function drawOrder(){
+  return tiles
+    .map(t=>({t, ...tileScreen(t)}))
+    .sort((a,b)=> a.t.z-b.t.z || a.y-b.y || a.x-b.x);
 }
 
 function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
 
 function drawTile(t, alpha=1, scale=1){
-  const {tw,th,ex,ey} = M;
+  const {sW,sH,ex,ey,basis} = M;
   let {x,y} = tileScreen(t);
-  if(scale!==1){ x += tw*(1-scale)/2; y += th*(1-scale)/2; }
-  const w=tw*scale, h=th*scale, r=w*0.12;
+  if(scale!==1){ x += sW*(1-scale)/2; y += sH*(1-scale)/2; }
+  const w=sW*scale, h=sH*scale, r=Math.min(w,h)*0.15;
   ctx.save(); ctx.globalAlpha = alpha;
   // side (right + bottom extrusion)
   ctx.fillStyle = '#b99b62';
@@ -396,14 +544,20 @@ function drawTile(t, alpha=1, scale=1){
   ctx.fillStyle = g;
   rr(x,y,w,h,r); ctx.fill();
   ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(120,90,40,.55)'; ctx.stroke();
-  drawKindFace(t.kind, x+w*0.08, y+h*0.07, w*0.84, h*0.86, w);
-  // selection / hint highlight
-  const sel = t===selected, hint = hintPair && (t===hintPair[0]||t===hintPair[1]);
-  if(sel || hint){
-    ctx.lineWidth = Math.max(2,w*0.06);
-    ctx.strokeStyle = sel ? '#ffb300' : '#37d5ff';
-    rr(x+1,y+1,w-2,h-2,r); ctx.stroke();
-    ctx.fillStyle = sel ? 'rgba(255,179,0,.18)' : 'rgba(55,213,255,.15)';
+  drawKindFace(t.kind, x+w*0.08, y+h*0.07, w*0.84, h*0.86, basis);
+  // highlights
+  const now = performance.now();
+  const sel = t===selected;
+  const partner = partnerSet.has(t);
+  const hint = hintPair && (t===hintPair[0]||t===hintPair[1]);
+  const flashing = flash.some(f=>f.t===t && f.until>now);
+  if(sel || hint || partner || flashing){
+    const pulse = 0.55+0.45*Math.sin(now/170);
+    ctx.lineWidth = Math.max(2.5, Math.min(w,h)*0.08);
+    ctx.strokeStyle = flashing ? '#ff3b30' : sel ? '#ffb300' : hint ? '#37d5ff' : `rgba(255,196,0,${pulse})`;
+    rr(x+1.5,y+1.5,w-3,h-3,r); ctx.stroke();
+    ctx.fillStyle = flashing ? 'rgba(255,59,48,.22)' : sel ? 'rgba(255,179,0,.18)'
+                  : hint ? 'rgba(55,213,255,.16)' : `rgba(255,196,0,${0.12*pulse})`;
     rr(x,y,w,h,r); ctx.fill();
   }
   ctx.restore();
@@ -421,19 +575,19 @@ const DOT_PAT = {
   9:[[.26,.24],[.5,.24],[.74,.24],[.26,.5],[.5,.5],[.74,.5],[.26,.76],[.5,.76],[.74,.76]]
 };
 
-function drawKindFace(k, x, y, w, h, tileW){
+function drawKindFace(k, x, y, w, h, basis){
   const cx=x+w/2, cy=y+h/2;
   ctx.textAlign='center'; ctx.textBaseline='middle';
-  if(k.suit==='c'){                       // characters 万
+  if(k.suit==='c'){                       // characters 萬
     ctx.fillStyle='#1a3a6b';
-    ctx.font=`700 ${tileW*0.34}px ${FACE_FONT}`;
+    ctx.font=`700 ${basis*0.36}px ${FACE_FONT}`;
     ctx.fillText(CN_NUM[k.v], cx, y+h*0.26);
     ctx.fillStyle='#b02418';
-    ctx.font=`700 ${tileW*0.4}px ${FACE_FONT}`;
+    ctx.font=`700 ${basis*0.42}px ${FACE_FONT}`;
     ctx.fillText('萬', cx, y+h*0.72);
   } else if(k.suit==='d'){                // dots
     const pat = DOT_PAT[k.v], big = k.v===1;
-    const rad = tileW*(big?0.22:(k.v<=4?0.105:0.085));
+    const rad = basis*(big?0.23:(k.v<=4?0.11:0.09));
     pat.forEach(([px,py],i)=>{
       const dx=x+px*w, dy=y+py*h, col=SPOT_COLORS[i%3];
       ctx.beginPath(); ctx.arc(dx,dy,rad,0,7); ctx.fillStyle=col; ctx.fill();
@@ -442,31 +596,31 @@ function drawKindFace(k, x, y, w, h, tileW){
       ctx.beginPath(); ctx.arc(dx,dy,rad*0.25,0,7); ctx.fillStyle=col; ctx.fill();
     });
   } else if(k.suit==='b'){                // bamboo
-    if(k.v===1){ drawStick(cx,cy,tileW*0.2,h*0.6,'#1c6e3c'); }
+    if(k.v===1){ drawStick(cx,cy,basis*0.21,h*0.6,'#1c6e3c'); }
     else DOT_PAT[k.v].forEach(([px,py],i)=>
-      drawStick(x+px*w, y+py*h, tileW*(k.v<=4?0.11:0.09), h*(k.v<=4?0.26:0.18),
+      drawStick(x+px*w, y+py*h, basis*(k.v<=4?0.115:0.095), h*(k.v<=4?0.26:0.18),
         i%3===2 ? '#b02418' : '#1c6e3c'));
   } else if(k.suit==='w'){                // winds
     ctx.fillStyle='#1a2b4a';
-    ctx.font=`700 ${tileW*0.52}px ${FACE_FONT}`;
+    ctx.font=`700 ${basis*0.55}px ${FACE_FONT}`;
     ctx.fillText({E:'東',S:'南',W:'西',N:'北'}[k.v], cx, cy+h*0.02);
   } else if(k.suit==='g'){                // dragons
     if(k.v==='H'){
-      ctx.lineWidth=tileW*0.05; ctx.strokeStyle='#1a3a6b';
-      rr(x+w*0.22,y+h*0.18,w*0.56,h*0.64,tileW*0.04); ctx.stroke();
+      ctx.lineWidth=basis*0.055; ctx.strokeStyle='#1a3a6b';
+      rr(x+w*0.24,y+h*0.2,w*0.52,h*0.6,basis*0.04); ctx.stroke();
     } else {
       ctx.fillStyle = k.v==='R' ? '#b02418' : '#1c6e3c';
-      ctx.font=`700 ${tileW*0.52}px ${FACE_FONT}`;
+      ctx.font=`700 ${basis*0.55}px ${FACE_FONT}`;
       ctx.fillText(k.v==='R'?'中':'發', cx, cy+h*0.02);
     }
   } else {                                // flowers / seasons
     const ch = k.suit==='f' ? ['','梅','蘭','菊','竹'][k.v] : ['','春','夏','秋','冬'][k.v];
     ctx.fillStyle = k.suit==='f' ? '#c2185b' : '#0b7285';
-    ctx.font=`700 ${tileW*0.44}px ${FACE_FONT}`;
+    ctx.font=`700 ${basis*0.46}px ${FACE_FONT}`;
     ctx.fillText(ch, cx, cy+h*0.06);
     ctx.fillStyle='#1a3a6b';
-    ctx.font=`700 ${tileW*0.16}px ${FACE_FONT}`;
-    ctx.textAlign='left'; ctx.fillText(k.v, x+w*0.06, y+h*0.14); ctx.textAlign='center';
+    ctx.font=`700 ${basis*0.17}px ${FACE_FONT}`;
+    ctx.textAlign='left'; ctx.fillText(k.v, x+w*0.05, y+h*0.13); ctx.textAlign='center';
   }
 }
 function drawStick(cx,cy,w,h,col){
@@ -479,16 +633,8 @@ function drawStick(cx,cy,w,h,col){
 function render(now){
   if(canvas.clientWidth!==M.cssW || canvas.clientHeight!==M.cssH) computeMetrics();
   ctx.clearRect(0,0,M.cssW,M.cssH);
-  for(const t of drawOrder()) if(!t.removed) drawTile(t);
-  // hint pulse
-  if(hintPair){
-    const pulse = 0.5+0.5*Math.sin(now/180);
-    ctx.save(); ctx.globalAlpha = 0.25*pulse;
-    for(const t of hintPair){ if(!t.removed){ const {x,y}=tileScreen(t);
-      ctx.fillStyle='#37d5ff'; rr(x,y,M.tw,M.th,M.tw*0.12); ctx.fill(); } }
-    ctx.restore();
-  }
-  // removal animations
+  for(const e of drawOrder()) if(!e.t.removed) drawTile(e.t);
+  flash = flash.filter(f=>f.until>now);
   anims = anims.filter(a=>{
     const p = (now-a.start)/220;
     if(p>=1) return false;
@@ -502,25 +648,40 @@ function render(now){
 function tileAt(px,py){
   const order = drawOrder();
   for(let i=order.length-1;i>=0;i--){
-    const t=order[i]; if(t.removed) continue;
-    const {x,y}=tileScreen(t);
-    if(px>=x && px<=x+M.tw && py>=y && py<=y+M.th) return t;
+    const e=order[i]; if(e.t.removed) continue;
+    if(px>=e.x && px<=e.x+M.sW && py>=e.y && py<=e.y+M.sH) return e.t;
   }
   return null;
 }
 
 canvas.addEventListener('pointerdown', e=>{
-  if(!playing) return;
+  if(!playing || $('overlay').classList.contains('show')) return;
   const rect = canvas.getBoundingClientRect();
   const t = tileAt(e.clientX-rect.left, e.clientY-rect.top);
-  if(!t){ selected=null; return; }
-  if(!isFree(t)){ beep(180,.07); return; }
-  if(selected===t){ selected=null; beep(330,.05); return; }
+  if(window.__zmdebug) (window.__zmlog ||= []).push(
+    {x:+e.clientX.toFixed(1), y:+e.clientY.toFixed(1), pt:e.pointerType,
+     hit: t?tiles.indexOf(t):null, sel: selected?tiles.indexOf(selected):null});
+  if(!t){ select(null); return; }
+  if(!isFree(t)){
+    flash.push({t, until: performance.now()+600});
+    if(performance.now()-lastBlockedToast>2500){
+      lastBlockedToast = performance.now();
+      toast('That tile is trapped — it needs a free side and nothing on top.');
+    }
+    beep(180,.07); return;
+  }
+  if(selected===t){ select(null); beep(330,.05); return; }
   if(selected && selected.kind.match===t.kind.match){ removePair(selected,t); return; }
-  selected=t; beep(440,.05);
+  if(selected){
+    if(partnerSet.size) toast('Not the same picture — the matching ones are glowing gold.');
+    else toast('Not the same picture.');
+  }
+  hintPair=null;
+  select(t); beep(440,.05);
 });
 
-$('btn-new').onclick  = ()=>showOverlay('New game?','Start over with a fresh board?',[['Yes, new game',newGame],['Keep playing',hideOverlay]]);
+$('btn-new').onclick  = showMenu;
+$('btn-help').onclick = ()=>showHowTo(tiles.length?null:undefined);
 $('btn-undo').onclick = doUndo;
 $('btn-hint').onclick = doHint;
 $('btn-shuf').onclick = doShuffle;
@@ -534,17 +695,22 @@ window.addEventListener('resize', computeMetrics);
 window.addEventListener('orientationchange', ()=>setTimeout(computeMetrics,120));
 
 /* ---------- boot ---------- */
-computeMetrics();
-newGame();
+layoutKey = localStorage.getItem('zm-layout') || 'small';
+if(!LAYOUTS[layoutKey]) layoutKey = 'small';
+newGame(layoutKey);
 requestAnimationFrame(render);
+if(!localStorage.getItem('zm-seen')) showHowTo(null);
 
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 
-/* ---------- self-test hook (?autotest=1): replay the generated solution ---------- */
+/* ---------- self-test hook (?autotest=1&layout=classic): replay the solution ---------- */
 if(new URLSearchParams(location.search).has('autotest')){
   soundOn=false;
+  const want = new URLSearchParams(location.search).get('layout');
+  if(want && LAYOUTS[want] && want!==layoutKey) newGame(want);
+  hideOverlay();
   setTimeout(()=>{
     const out=$('autotest-result');
     try{
@@ -555,7 +721,7 @@ if(new URLSearchParams(location.search).has('autotest')){
         ta.removed=tb.removed=true;
       }
       if(tilesLeft()!==0) throw new Error('tiles left: '+tilesLeft());
-      out.textContent=`AUTOTEST-PASS vw=${innerWidth} vh=${innerHeight} cw=${canvas.clientWidth} ch=${canvas.clientHeight} tw=${M.tw.toFixed(1)}`;
+      out.textContent=`AUTOTEST-PASS layout=${layoutKey} n=${tiles.length} sw=${M.sW.toFixed(1)} transposed=${M.transposed}`;
       document.title='AUTOTEST-PASS';
     }catch(err){
       out.textContent='AUTOTEST-FAIL: '+err.message; document.title='AUTOTEST-FAIL';
