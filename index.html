@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d3b2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Zen Mahjong — free &amp; ad-free</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<style>
+  :root{
+    --felt1:#14543f; --felt2:#0a2e22;
+    --wood1:#7a4a21; --wood2:#5b3312;
+    --ink:#f3ead2;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{
+    display:flex;flex-direction:column;
+    height:100dvh;
+    background:radial-gradient(120% 90% at 50% 20%, var(--felt1) 0%, var(--felt2) 100%);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    color:var(--ink);
+    touch-action:manipulation;
+    user-select:none;-webkit-user-select:none;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:8px 14px;
+    background:linear-gradient(180deg,var(--wood1),var(--wood2));
+    box-shadow:0 2px 8px rgba(0,0,0,.45);
+    flex:0 0 auto;
+  }
+  header .title{font-weight:700;font-size:15px;letter-spacing:.5px;white-space:nowrap}
+  header .stats{display:flex;gap:14px;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+  header .stats b{font-weight:700}
+  @media (max-width:430px){ header .title{display:none} }
+  #wrap{flex:1 1 0;min-height:0;min-width:0;position:relative}
+  #board{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  nav{
+    flex:0 0 auto;
+    display:flex;justify-content:center;align-items:center;gap:14px;
+    padding:8px 10px 12px;
+    background:linear-gradient(180deg,var(--wood1),var(--wood2));
+    box-shadow:0 -2px 8px rgba(0,0,0,.45);
+  }
+  nav button{
+    width:56px;height:56px;border-radius:50%;
+    border:2px solid #3d2008;
+    background:radial-gradient(circle at 35% 30%, #9c6430, #5b3312);
+    color:var(--ink);font-size:22px;line-height:1;
+    box-shadow:0 3px 6px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.25);
+    cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  }
+  nav button small{font-size:9px;letter-spacing:.4px;opacity:.85}
+  nav button:active{transform:translateY(2px);box-shadow:0 1px 3px rgba(0,0,0,.5)}
+  nav button:disabled{opacity:.4}
+  #overlay{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(4,20,14,.72);backdrop-filter:blur(3px);z-index:10;
+  }
+  #overlay.show{display:flex}
+  #overlay .card{
+    background:linear-gradient(180deg,#f7efdb,#e8dcc0);
+    color:#3a2a12;border-radius:18px;padding:26px 30px;max-width:320px;width:88%;
+    text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.6);
+    border:3px solid #b98a4e;
+  }
+  #overlay h2{font-size:24px;margin-bottom:8px}
+  #overlay p{font-size:14px;line-height:1.5;margin-bottom:16px}
+  #overlay .btns{display:flex;flex-direction:column;gap:8px}
+  #overlay button{
+    padding:11px 16px;border-radius:12px;border:2px solid #3d2008;
+    background:linear-gradient(180deg,#8a5626,#5b3312);color:var(--ink);
+    font-size:15px;font-weight:600;cursor:pointer;
+  }
+  #autotest-result{position:fixed;left:-9999px;top:0}
+</style>
+</head>
+<body>
+<header>
+  <span class="title">🀄 Zen Mahjong</span>
+  <span class="stats">
+    <span>⏱ <b id="st-time">0:00</b></span>
+    <span>★ <b id="st-score">0</b></span>
+    <span>▦ <b id="st-tiles">144</b></span>
+    <span>⇆ <b id="st-moves">–</b></span>
+  </span>
+</header>
+<main id="wrap"><canvas id="board"></canvas></main>
+<nav>
+  <button id="btn-new"  title="New game">✦<small>NEW</small></button>
+  <button id="btn-undo" title="Undo">↶<small>UNDO</small></button>
+  <button id="btn-hint" title="Hint">💡<small>HINT</small></button>
+  <button id="btn-shuf" title="Shuffle">⇄<small>MIX</small></button>
+  <button id="btn-snd"  title="Sound">🔊<small>SOUND</small></button>
+</nav>
+<div id="overlay"><div class="card">
+  <h2 id="ov-title"></h2>
+  <p id="ov-text"></p>
+  <div class="btns" id="ov-btns"></div>
+</div></div>
+<div id="autotest-result"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   Zen Mahjong — mahjong solitaire, 100% free, no ads, offline.
+   ============================================================ */
+
+/* ---------- tile kinds (144 tiles) ---------- */
+const CN_NUM = ['','一','二','三','四','五','六','七','八','九'];
+function makeKinds(){
+  const ks = [];
+  const add = (suit,v,match,copies)=>{ for(let c=0;c<copies;c++) ks.push({suit,v,match}); };
+  for(let v=1;v<=9;v++){ add('c',v,'c'+v,4); add('b',v,'b'+v,4); add('d',v,'d'+v,4); }
+  ['E','S','W','N'].forEach(w=>add('w',w,'w'+w,4));
+  ['R','G','H'].forEach(d=>add('g',d,'g'+d,4));       // dragons: Red 中, Green 發, wHite 白
+  for(let v=1;v<=4;v++) add('f',v,'f',1);              // flowers match each other
+  for(let v=1;v<=4;v++) add('s',v,'s',1);              // seasons match each other
+  return ks;
+}
+
+/* ---------- classic "turtle" layout, coords in half-tile units ---------- */
+function makePositions(){
+  const P = [];
+  const spans0 = [[0,2,24],[2,6,20],[4,4,22],[6,2,24],[8,2,24],[10,4,22],[12,6,20],[14,2,24]];
+  for(const [y,x0,x1] of spans0) for(let x=x0;x<=x1;x+=2) P.push({x,y,z:0});
+  P.push({x:0,y:7,z:0}); P.push({x:26,y:7,z:0}); P.push({x:28,y:7,z:0});
+  for(let y=2;y<=12;y+=2) for(let x=8;x<=18;x+=2) P.push({x,y,z:1});
+  for(let y=4;y<=10;y+=2) for(let x=10;x<=16;x+=2) P.push({x,y,z:2});
+  for(let y=6;y<=8;y+=2)  for(let x=12;x<=14;x+=2) P.push({x,y,z:3});
+  P.push({x:13,y:7,z:4});
+  return P; // 144 positions
+}
+const POSITIONS = makePositions();
+
+/* ---------- state ---------- */
+let tiles = [];          // {x,y,z,kind,removed}
+let selected = null;
+let undoStack = [];
+let hintPair = null, hintIdx = 0;
+let score = 0, seconds = 0, timerId = null, playing = false;
+let anims = [];          // fade-out animations
+let solutionOrder = [];  // [{a:posIdx,b:posIdx}] — order the deal was built in (a valid solution)
+let soundOn = localStorage.getItem('zm-sound') !== 'off';
+
+const $ = id => document.getElementById(id);
+const canvas = $('board'), ctx = canvas.getContext('2d');
+
+/* ---------- helpers ---------- */
+const shuffleArr = a => { for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+function makePairs(kinds){
+  const groups = {};
+  for(const k of kinds) (groups[k.match] ||= []).push(k);
+  const pairs = [];
+  for(const key in groups){
+    const g = shuffleArr(groups[key].slice());
+    for(let i=0;i<g.length;i+=2) pairs.push([g[i],g[i+1]]);
+  }
+  return shuffleArr(pairs);
+}
+
+/* free-position check on an occupancy array over an arbitrary position list */
+function posFree(i, pos, occ){
+  const p = pos[i];
+  let left=false, right=false;
+  for(let j=0;j<pos.length;j++){
+    if(j===i || !occ[j]) continue;
+    const o = pos[j];
+    if(o.z===p.z+1 && Math.abs(o.x-p.x)<2 && Math.abs(o.y-p.y)<2) return false;
+    if(o.z===p.z && Math.abs(o.y-p.y)<2){
+      if(o.x===p.x-2) left=true; else if(o.x===p.x+2) right=true;
+    }
+  }
+  return !(left && right);
+}
+
+/* Build a guaranteed-solvable assignment of `kinds` onto `pos`
+   by playing the game in reverse. Returns {assign, order} or null. */
+function solvableDeal(pos, kinds){
+  for(let attempt=0; attempt<300; attempt++){
+    const pairs = makePairs(kinds);
+    const occ = pos.map(()=>true);
+    const assign = new Array(pos.length);
+    const order = [];
+    let ok = true;
+    for(const [ka,kb] of pairs){
+      const free = [];
+      for(let i=0;i<pos.length;i++) if(occ[i] && posFree(i,pos,occ)) free.push(i);
+      if(free.length < 2){ ok=false; break; }
+      const ai = free.splice(Math.random()*free.length|0,1)[0];
+      const bi = free.splice(Math.random()*free.length|0,1)[0];
+      assign[ai]=ka; assign[bi]=kb; occ[ai]=occ[bi]=false;
+      order.push({a:ai,b:bi});
+    }
+    if(ok) return {assign, order};
+  }
+  return null;
+}
+
+/* ---------- game actions ---------- */
+function newGame(){
+  const deal = solvableDeal(POSITIONS, makeKinds());
+  const assign = deal ? deal.assign : shuffleArr(makeKinds()); // deal never fails in practice
+  solutionOrder = deal ? deal.order : [];
+  tiles = POSITIONS.map((p,i)=>({x:p.x,y:p.y,z:p.z,kind:assign[i],removed:false}));
+  selected=null; undoStack=[]; hintPair=null; hintIdx=0; anims=[];
+  score=0; seconds=0; playing=true;
+  clearInterval(timerId);
+  timerId = setInterval(()=>{ if(playing){ seconds++; updateHud(); } },1000);
+  hideOverlay(); updateHud();
+}
+
+function isFree(t){
+  if(t.removed) return false;
+  let left=false,right=false;
+  for(const o of tiles){
+    if(o===t || o.removed) continue;
+    if(o.z===t.z+1 && Math.abs(o.x-t.x)<2 && Math.abs(o.y-t.y)<2) return false;
+    if(o.z===t.z && Math.abs(o.y-t.y)<2){
+      if(o.x===t.x-2) left=true; else if(o.x===t.x+2) right=true;
+    }
+  }
+  return !(left&&right);
+}
+
+function freeTiles(){ return tiles.filter(isFree); }
+
+function matchingPairs(){
+  const free = freeTiles(), out = [];
+  for(let i=0;i<free.length;i++)
+    for(let j=i+1;j<free.length;j++)
+      if(free[i].kind.match===free[j].kind.match) out.push([free[i],free[j]]);
+  return out;
+}
+
+function tilesLeft(){ return tiles.reduce((n,t)=>n+!t.removed,0); }
+
+function removePair(a,b){
+  a.removed=b.removed=true;
+  undoStack.push([a,b]);
+  anims.push({t:a,start:performance.now()},{t:b,start:performance.now()});
+  score += 100;
+  selected=null; hintPair=null;
+  beep(660,.08); setTimeout(()=>beep(880,.08),70);
+  afterMove();
+}
+
+function afterMove(){
+  updateHud();
+  const left = tilesLeft();
+  if(left===0){
+    playing=false; clearInterval(timerId);
+    const best = +(localStorage.getItem('zm-best')||0);
+    if(score>best) localStorage.setItem('zm-best',score);
+    showOverlay('🎉 You won!',
+      `Cleared in ${fmtTime(seconds)} — score ${score}.` + (score>best?' New best!':` Best: ${Math.max(best,score)}.`),
+      [['Play again',newGame]]);
+    beep(523,.12); setTimeout(()=>beep(659,.12),120); setTimeout(()=>beep(784,.2),240);
+  } else if(matchingPairs().length===0){
+    showOverlay('No moves left',
+      `${left} tiles remain but nothing matches. Shuffle the remaining tiles or undo.`,
+      [['Shuffle ⇄',()=>{hideOverlay();doShuffle();}],
+       ['Undo ↶',()=>{hideOverlay();doUndo();}],
+       ['New game',newGame]]);
+  }
+}
+
+function doUndo(){
+  const last = undoStack.pop();
+  if(!last) return;
+  last[0].removed=last[1].removed=false;
+  score = Math.max(0, score-100);
+  selected=null; hintPair=null;
+  hideOverlay(); updateHud(); beep(330,.06);
+}
+
+function doShuffle(){
+  const remaining = tiles.filter(t=>!t.removed);
+  if(remaining.length<4) return;
+  const pos = remaining.map(t=>({x:t.x,y:t.y,z:t.z}));
+  const deal = solvableDeal(pos, remaining.map(t=>t.kind));
+  if(deal){
+    remaining.forEach((t,i)=>t.kind=deal.assign[i]);
+  } else {
+    const ks = shuffleArr(remaining.map(t=>t.kind));   // structural dead-end fallback
+    remaining.forEach((t,i)=>t.kind=ks[i]);
+  }
+  score = Math.max(0, score-200);
+  selected=null; hintPair=null; undoStack=[];
+  updateHud(); beep(440,.1);
+  if(matchingPairs().length===0)
+    showOverlay('Still stuck','The remaining tiles are stacked so no shuffle can help. Start a new game?',[['New game',newGame]]);
+}
+
+function doHint(){
+  const pairs = matchingPairs();
+  if(!pairs.length) return;
+  hintPair = pairs[hintIdx++ % pairs.length];
+  score = Math.max(0, score-50);
+  updateHud(); beep(550,.06);
+}
+
+/* ---------- HUD / overlay ---------- */
+const fmtTime = s => `${s/60|0}:${String(s%60).padStart(2,'0')}`;
+function updateHud(){
+  $('st-time').textContent = fmtTime(seconds);
+  $('st-score').textContent = score;
+  $('st-tiles').textContent = tilesLeft();
+  $('st-moves').textContent = matchingPairs().length;
+  $('btn-undo').disabled = undoStack.length===0;
+}
+function showOverlay(title,text,btns){
+  $('ov-title').textContent=title; $('ov-text').textContent=text;
+  const box=$('ov-btns'); box.innerHTML='';
+  for(const [label,fn] of btns){
+    const b=document.createElement('button'); b.textContent=label; b.onclick=fn; box.appendChild(b);
+  }
+  $('overlay').classList.add('show');
+}
+function hideOverlay(){ $('overlay').classList.remove('show'); }
+
+/* ---------- sound (tiny WebAudio blips, no assets) ---------- */
+let audioCtx=null;
+function beep(freq,dur){
+  if(!soundOn) return;
+  try{
+    audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();
+    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='triangle'; o.frequency.value=freq;
+    g.gain.setValueAtTime(.12,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+dur);
+  }catch(e){}
+}
+
+/* ---------- rendering ---------- */
+let M = null; // metrics
+function computeMetrics(){
+  const dpr = Math.min(window.devicePixelRatio||1, 3);
+  const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+  canvas.width = cssW*dpr; canvas.height = cssH*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  // board: 30 half-units wide (15 tiles), 16 half-units tall (8 tiles), 5 layers
+  const pad = 10, lift = 0.16; // layer lift as fraction of tile width
+  const tw = Math.min((cssW-2*pad)/(15 + 4*lift + .4), (cssH-2*pad)/((8*1.32 + 4*lift*1.32 + .4)) / 1 * (1/1.32) );
+  const th = tw*1.32;
+  const ex = tw*lift, ey = th*lift*0.75;
+  const boardW = 15*tw + 4*ex, boardH = 8*th + 4*ey;
+  M = { tw, th, hw: tw/2, hh: th/2, ex, ey,
+        ox: (cssW-boardW)/2 + 4*ex, oy: (cssH-boardH)/2 + 4*ey, cssW, cssH };
+}
+
+const drawOrder = () => tiles.slice().sort((a,b)=> a.z-b.z || a.y-b.y || a.x-b.x);
+
+function tileScreen(t){
+  return { x: M.ox + t.x*M.hw - t.z*M.ex, y: M.oy + t.y*M.hh - t.z*M.ey };
+}
+
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+
+function drawTile(t, alpha=1, scale=1){
+  const {tw,th,ex,ey} = M;
+  let {x,y} = tileScreen(t);
+  if(scale!==1){ x += tw*(1-scale)/2; y += th*(1-scale)/2; }
+  const w=tw*scale, h=th*scale, r=w*0.12;
+  ctx.save(); ctx.globalAlpha = alpha;
+  // side (right + bottom extrusion)
+  ctx.fillStyle = '#b99b62';
+  rr(x+ex*.9, y+ey*.9, w, h, r); ctx.fill();
+  ctx.fillStyle = '#d8bd85';
+  rr(x+ex*.45, y+ey*.45, w, h, r); ctx.fill();
+  // face
+  const g = ctx.createLinearGradient(x,y,x,y+h);
+  g.addColorStop(0,'#fdf8ea'); g.addColorStop(1,'#efe3c3');
+  ctx.fillStyle = g;
+  rr(x,y,w,h,r); ctx.fill();
+  ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(120,90,40,.55)'; ctx.stroke();
+  drawKindFace(t.kind, x+w*0.08, y+h*0.07, w*0.84, h*0.86, w);
+  // selection / hint highlight
+  const sel = t===selected, hint = hintPair && (t===hintPair[0]||t===hintPair[1]);
+  if(sel || hint){
+    ctx.lineWidth = Math.max(2,w*0.06);
+    ctx.strokeStyle = sel ? '#ffb300' : '#37d5ff';
+    rr(x+1,y+1,w-2,h-2,r); ctx.stroke();
+    ctx.fillStyle = sel ? 'rgba(255,179,0,.18)' : 'rgba(55,213,255,.15)';
+    rr(x,y,w,h,r); ctx.fill();
+  }
+  ctx.restore();
+}
+
+const FACE_FONT = '"Noto Sans CJK SC","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",serif';
+const SPOT_COLORS = ['#b02418','#1c6e3c','#1a3a6b'];
+const DOT_PAT = {
+  1:[[.5,.5]], 2:[[.5,.28],[.5,.72]], 3:[[.25,.22],[.5,.5],[.75,.78]],
+  4:[[.3,.26],[.7,.26],[.3,.74],[.7,.74]],
+  5:[[.27,.25],[.73,.25],[.5,.5],[.27,.75],[.73,.75]],
+  6:[[.32,.24],[.68,.24],[.32,.5],[.68,.5],[.32,.76],[.68,.76]],
+  7:[[.24,.16],[.5,.22],[.76,.28],[.32,.56],[.68,.56],[.32,.84],[.68,.84]],
+  8:[[.32,.19],[.68,.19],[.32,.4],[.68,.4],[.32,.61],[.68,.61],[.32,.82],[.68,.82]],
+  9:[[.26,.24],[.5,.24],[.74,.24],[.26,.5],[.5,.5],[.74,.5],[.26,.76],[.5,.76],[.74,.76]]
+};
+
+function drawKindFace(k, x, y, w, h, tileW){
+  const cx=x+w/2, cy=y+h/2;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(k.suit==='c'){                       // characters 万
+    ctx.fillStyle='#1a3a6b';
+    ctx.font=`700 ${tileW*0.34}px ${FACE_FONT}`;
+    ctx.fillText(CN_NUM[k.v], cx, y+h*0.26);
+    ctx.fillStyle='#b02418';
+    ctx.font=`700 ${tileW*0.4}px ${FACE_FONT}`;
+    ctx.fillText('萬', cx, y+h*0.72);
+  } else if(k.suit==='d'){                // dots
+    const pat = DOT_PAT[k.v], big = k.v===1;
+    const rad = tileW*(big?0.22:(k.v<=4?0.105:0.085));
+    pat.forEach(([px,py],i)=>{
+      const dx=x+px*w, dy=y+py*h, col=SPOT_COLORS[i%3];
+      ctx.beginPath(); ctx.arc(dx,dy,rad,0,7); ctx.fillStyle=col; ctx.fill();
+      ctx.beginPath(); ctx.arc(dx,dy,rad*0.55,0,7);
+      ctx.fillStyle='#fdf8ea'; ctx.fill();
+      ctx.beginPath(); ctx.arc(dx,dy,rad*0.25,0,7); ctx.fillStyle=col; ctx.fill();
+    });
+  } else if(k.suit==='b'){                // bamboo
+    if(k.v===1){ drawStick(cx,cy,tileW*0.2,h*0.6,'#1c6e3c'); }
+    else DOT_PAT[k.v].forEach(([px,py],i)=>
+      drawStick(x+px*w, y+py*h, tileW*(k.v<=4?0.11:0.09), h*(k.v<=4?0.26:0.18),
+        i%3===2 ? '#b02418' : '#1c6e3c'));
+  } else if(k.suit==='w'){                // winds
+    ctx.fillStyle='#1a2b4a';
+    ctx.font=`700 ${tileW*0.52}px ${FACE_FONT}`;
+    ctx.fillText({E:'東',S:'南',W:'西',N:'北'}[k.v], cx, cy+h*0.02);
+  } else if(k.suit==='g'){                // dragons
+    if(k.v==='H'){
+      ctx.lineWidth=tileW*0.05; ctx.strokeStyle='#1a3a6b';
+      rr(x+w*0.22,y+h*0.18,w*0.56,h*0.64,tileW*0.04); ctx.stroke();
+    } else {
+      ctx.fillStyle = k.v==='R' ? '#b02418' : '#1c6e3c';
+      ctx.font=`700 ${tileW*0.52}px ${FACE_FONT}`;
+      ctx.fillText(k.v==='R'?'中':'發', cx, cy+h*0.02);
+    }
+  } else {                                // flowers / seasons
+    const ch = k.suit==='f' ? ['','梅','蘭','菊','竹'][k.v] : ['','春','夏','秋','冬'][k.v];
+    ctx.fillStyle = k.suit==='f' ? '#c2185b' : '#0b7285';
+    ctx.font=`700 ${tileW*0.44}px ${FACE_FONT}`;
+    ctx.fillText(ch, cx, cy+h*0.06);
+    ctx.fillStyle='#1a3a6b';
+    ctx.font=`700 ${tileW*0.16}px ${FACE_FONT}`;
+    ctx.textAlign='left'; ctx.fillText(k.v, x+w*0.06, y+h*0.14); ctx.textAlign='center';
+  }
+}
+function drawStick(cx,cy,w,h,col){
+  ctx.fillStyle=col;
+  rr(cx-w/2,cy-h/2,w,h,w*0.4); ctx.fill();
+  ctx.fillStyle='rgba(253,248,234,.9)';
+  ctx.fillRect(cx-w/2, cy-h*0.06, w, h*0.12);
+}
+
+function render(now){
+  if(canvas.clientWidth!==M.cssW || canvas.clientHeight!==M.cssH) computeMetrics();
+  ctx.clearRect(0,0,M.cssW,M.cssH);
+  for(const t of drawOrder()) if(!t.removed) drawTile(t);
+  // hint pulse
+  if(hintPair){
+    const pulse = 0.5+0.5*Math.sin(now/180);
+    ctx.save(); ctx.globalAlpha = 0.25*pulse;
+    for(const t of hintPair){ if(!t.removed){ const {x,y}=tileScreen(t);
+      ctx.fillStyle='#37d5ff'; rr(x,y,M.tw,M.th,M.tw*0.12); ctx.fill(); } }
+    ctx.restore();
+  }
+  // removal animations
+  anims = anims.filter(a=>{
+    const p = (now-a.start)/220;
+    if(p>=1) return false;
+    drawTile(a.t, 1-p, 1+p*0.25);
+    return true;
+  });
+  requestAnimationFrame(render);
+}
+
+/* ---------- input ---------- */
+function tileAt(px,py){
+  const order = drawOrder();
+  for(let i=order.length-1;i>=0;i--){
+    const t=order[i]; if(t.removed) continue;
+    const {x,y}=tileScreen(t);
+    if(px>=x && px<=x+M.tw && py>=y && py<=y+M.th) return t;
+  }
+  return null;
+}
+
+canvas.addEventListener('pointerdown', e=>{
+  if(!playing) return;
+  const rect = canvas.getBoundingClientRect();
+  const t = tileAt(e.clientX-rect.left, e.clientY-rect.top);
+  if(!t){ selected=null; return; }
+  if(!isFree(t)){ beep(180,.07); return; }
+  if(selected===t){ selected=null; beep(330,.05); return; }
+  if(selected && selected.kind.match===t.kind.match){ removePair(selected,t); return; }
+  selected=t; beep(440,.05);
+});
+
+$('btn-new').onclick  = ()=>showOverlay('New game?','Start over with a fresh board?',[['Yes, new game',newGame],['Keep playing',hideOverlay]]);
+$('btn-undo').onclick = doUndo;
+$('btn-hint').onclick = doHint;
+$('btn-shuf').onclick = doShuffle;
+$('btn-snd').onclick  = function(){
+  soundOn=!soundOn; localStorage.setItem('zm-sound',soundOn?'on':'off');
+  this.firstChild.textContent = soundOn?'🔊':'🔇';
+};
+if(!soundOn) $('btn-snd').firstChild.textContent='🔇';
+
+window.addEventListener('resize', computeMetrics);
+window.addEventListener('orientationchange', ()=>setTimeout(computeMetrics,120));
+
+/* ---------- boot ---------- */
+computeMetrics();
+newGame();
+requestAnimationFrame(render);
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+
+/* ---------- self-test hook (?autotest=1): replay the generated solution ---------- */
+if(new URLSearchParams(location.search).has('autotest')){
+  soundOn=false;
+  setTimeout(()=>{
+    const out=$('autotest-result');
+    try{
+      for(const {a,b} of solutionOrder){
+        const ta=tiles[a], tb=tiles[b];
+        if(!isFree(ta)||!isFree(tb)) throw new Error(`tile not free at step (${a},${b})`);
+        if(ta.kind.match!==tb.kind.match) throw new Error(`mismatch at step (${a},${b})`);
+        ta.removed=tb.removed=true;
+      }
+      if(tilesLeft()!==0) throw new Error('tiles left: '+tilesLeft());
+      out.textContent=`AUTOTEST-PASS vw=${innerWidth} vh=${innerHeight} cw=${canvas.clientWidth} ch=${canvas.clientHeight} tw=${M.tw.toFixed(1)}`;
+      document.title='AUTOTEST-PASS';
+    }catch(err){
+      out.textContent='AUTOTEST-FAIL: '+err.message; document.title='AUTOTEST-FAIL';
+    }
+  }, 300);
+}
+</script>
+</body>
+</html>

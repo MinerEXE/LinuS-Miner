@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="35%" r="80%">
+      <stop offset="0%" stop-color="#1a6a4f"/>
+      <stop offset="100%" stop-color="#0a2e22"/>
+    </radialGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdf8ea"/>
+      <stop offset="100%" stop-color="#eee1bf"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect x="150" y="122" width="228" height="292" rx="30" fill="#b99b62"/>
+  <rect x="138" y="110" width="228" height="292" rx="30" fill="#d8bd85"/>
+  <rect x="126" y="98" width="228" height="292" rx="30" fill="url(#face)" stroke="#8a6a34" stroke-width="6"/>
+  <text x="240" y="272" font-size="180" font-weight="700" text-anchor="middle"
+        dominant-baseline="middle" fill="#b02418"
+        font-family="'Noto Sans CJK SC','Noto Sans SC','PingFang SC','Microsoft YaHei',serif">中</text>
+</svg>
